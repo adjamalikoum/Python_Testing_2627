@@ -57,7 +57,15 @@ def purchasePlaces():
     if datetime.strptime(competition['date'], "%Y-%m-%d %H:%M:%S") < datetime.now():
         flash("Cannot book places for a past competition.")
         return render_template('welcome.html', club=club, competitions=competitions)
-    placesRequired = int(request.form['places'])
+    try:
+        placesRequired = int(request.form.get('places', ''))
+    except (ValueError, TypeError):
+        flash("Invalid number of places.")
+        return render_template('welcome.html', club=club, competitions=competitions)
+
+    if placesRequired <= 0:
+        flash("Number of places must be at least 1.")
+        return render_template('welcome.html', club=club, competitions=competitions)
     if placesRequired > 12:
         flash("You cannot book more than 12 places per competition.")
         return render_template('welcome.html', club=club, competitions=competitions)
