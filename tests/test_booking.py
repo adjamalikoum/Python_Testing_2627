@@ -112,3 +112,11 @@ def test_cannot_book_with_invalid_places(client, invalid_places):
     assert int(comp["numberOfPlaces"]) == initial_comp_places
     assert int(club["points"]) == initial_club_points
     assert b"Great-booking complete!" not in response.data
+
+
+def test_book_with_unknown_club_or_competition_does_not_crash(client):
+    response_unknown_club = client.get("/book/Future Competition/Unknown Club")
+    assert response_unknown_club.status_code in (200, 302)
+
+    response_unknown_comp = client.get("/book/Unknown Competition/Simply Lift")
+    assert response_unknown_comp.status_code in (200, 302)
