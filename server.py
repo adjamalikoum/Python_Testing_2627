@@ -1,16 +1,21 @@
 import json
+import os
 from datetime import datetime
 from flask import Flask,render_template,request,redirect,flash,url_for
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def loadClubs():
-    with open('clubs.json') as c:
+    path = os.path.join(BASE_DIR, 'clubs.json')
+    with open(path) as c:
          listOfClubs = json.load(c)['clubs']
          return listOfClubs
 
 
 def loadCompetitions():
-    with open('competitions.json') as comps:
+    path = os.path.join(BASE_DIR, 'competitions.json')
+    with open(path) as comps:
          listOfCompetitions = json.load(comps)['competitions']
          return listOfCompetitions
 
