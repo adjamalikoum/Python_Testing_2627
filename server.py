@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from flask import Flask,render_template,request,redirect,flash,url_for
+from flask import Flask,render_template,request,redirect,flash,url_for,session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -30,9 +30,22 @@ clubs = loadClubs()
 def index():
     return render_template('index.html')
 
-@app.route('/showSummary',methods=['POST'])
+@app.route('/showSummary',methods=['GET','POST'])
 def showSummary():
-    email = request.form.get('email')
+    if request.method == 'POST':
+        email = request.form.get('email')
+        matching_clubs = [club for club in clubs if club['email'] == email]
+        if not matching_clubs:
+            flash("Sorry, that email was not found.")
+            return redirect(url_for('index'))
+        club = matching_clubs[0]
+        session['email'] = club['email']
+        return render_template('welcome.html',club=club,competitions=competitions)
+
+    email = session.get('email')
+    if not email:
+        flash("Please log in to access this page.")
+        return redirect(url_for('index'))
     matching_clubs = [club for club in clubs if club['email'] == email]
     if not matching_clubs:
         flash("Sorry, that email was not found.")
@@ -96,4 +109,5 @@ def points():
 
 @app.route('/logout')
 def logout():
+    session.clear()
     return redirect(url_for('index'))
