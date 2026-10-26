@@ -4,6 +4,9 @@ import server
 
 def test_points_deducted_after_booking(client):
     club_name = "Simply Lift"
+    club_email = [c for c in server.clubs if c["name"] == club_name][0]["email"]
+    client.post("/showSummary", data={"email": club_email})
+
     initial_points = int([c for c in server.clubs if c["name"] == club_name][0]["points"])
     places_to_book = 2
 
@@ -14,6 +17,7 @@ def test_points_deducted_after_booking(client):
             "competition": "Future Competition",
             "places": str(places_to_book),
         },
+        follow_redirects=True,
     )
 
     assert response.status_code == 200
