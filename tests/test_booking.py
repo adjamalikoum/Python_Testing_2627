@@ -10,7 +10,7 @@ def test_points_deducted_after_booking(client):
         "/purchasePlaces",
         data={
             "club": club_name,
-            "competition": "Spring Festival",
+            "competition": "Future Competition",
             "places": str(places_to_book),
         },
     )
@@ -23,7 +23,7 @@ def test_points_deducted_after_booking(client):
 
 def test_cannot_book_more_places_than_available(client):
     club_name = "Simply Lift"
-    comp_name = "Spring Festival"
+    comp_name = "Future Competition"
     initial_comp_places = int([c for c in server.competitions if c["name"] == comp_name][0]["numberOfPlaces"])
     initial_club_points = int([c for c in server.clubs if c["name"] == club_name][0]["points"])
 
@@ -46,7 +46,7 @@ def test_cannot_book_more_places_than_available(client):
 
 def test_cannot_book_more_than_12_places(client):
     club_name = "Simply Lift"
-    comp_name = "Spring Festival"
+    comp_name = "Future Competition"
     initial_comp_places = int([c for c in server.competitions if c["name"] == comp_name][0]["numberOfPlaces"])
     initial_club_points = int([c for c in server.clubs if c["name"] == club_name][0]["points"])
 
@@ -66,3 +66,25 @@ def test_cannot_book_more_than_12_places(client):
     assert int(club["points"]) == initial_club_points
     assert b"Great-booking complete!" not in response.data
     assert b"12" in response.data
+
+
+def test_cannot_book_past_competition(client):
+    club_name = "Simply Lift"
+    comp_name = "Spring Festival"  # Date: 2020-03-27 10:00:00 (past)
+    initial_comp_places = int([c for c in server.competitions if c["name"] == comp_name][0]["numberOfPlaces"])
+    initial_club_points = int([c for c in server.clubs if c["name"] == club_name][0]["points"])
+
+    response = client.post(
+        "/purchasePlaces",
+        data={
+            "club": club_name,
+            "competition": comp_name,
+            "places": "1",
+        },
+    )
+
+    comp = [c for c in server.competitions if c["name"] == comp_name][0]
+    club = [c for c in server.clubs if c["name"] == club_name][0]
+    assert int(comp["numberOfPlaces"]) == initial_comp_places
+    assert int(club["points"]) == initial_club_points
+    assert b"Great-booking complete!" not in response.data
