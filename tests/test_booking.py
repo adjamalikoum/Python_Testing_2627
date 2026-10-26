@@ -1,3 +1,4 @@
+import pytest
 import server
 
 
@@ -80,6 +81,29 @@ def test_cannot_book_past_competition(client):
             "club": club_name,
             "competition": comp_name,
             "places": "1",
+        },
+    )
+
+    comp = [c for c in server.competitions if c["name"] == comp_name][0]
+    club = [c for c in server.clubs if c["name"] == club_name][0]
+    assert int(comp["numberOfPlaces"]) == initial_comp_places
+    assert int(club["points"]) == initial_club_points
+    assert b"Great-booking complete!" not in response.data
+
+
+@pytest.mark.parametrize("invalid_places", ["-2", "0", "abc", ""])
+def test_cannot_book_with_invalid_places(client, invalid_places):
+    club_name = "Simply Lift"
+    comp_name = "Future Competition"
+    initial_comp_places = int([c for c in server.competitions if c["name"] == comp_name][0]["numberOfPlaces"])
+    initial_club_points = int([c for c in server.clubs if c["name"] == club_name][0]["points"])
+
+    response = client.post(
+        "/purchasePlaces",
+        data={
+            "club": club_name,
+            "competition": comp_name,
+            "places": invalid_places,
         },
     )
 
