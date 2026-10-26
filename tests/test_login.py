@@ -47,5 +47,10 @@ def test_competitions_separated_into_upcoming_and_past(client):
     assert response.status_code == 200
     assert b"Upcoming Competitions" in response.data
     assert b"Past Competitions" in response.data
-    assert b"/book/Future%20Competition/Simply%20Lift" in response.data or b"/book/Future Competition/Simply Lift" in response.data
-    assert b"/book/Spring%20Festival/Simply%20Lift" not in response.data and b"/book/Spring Festival/Simply Lift" not in response.data
+    has_future_book = (
+        b"/book/Future%20Competition/Simply%20Lift" in response.data
+        or b"/book/Future Competition/Simply Lift" in response.data
+    )
+    assert has_future_book
+    assert b"/book/Spring%20Festival/Simply%20Lift" not in response.data
+    assert b"/book/Spring Festival/Simply Lift" not in response.data

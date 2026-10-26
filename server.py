@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from flask import Flask,render_template,request,redirect,flash,url_for,session
+from flask import Flask, render_template, request, redirect, flash, url_for, session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -9,15 +9,15 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 def loadClubs():
     path = os.path.join(BASE_DIR, 'clubs.json')
     with open(path) as c:
-         listOfClubs = json.load(c)['clubs']
-         return listOfClubs
+        listOfClubs = json.load(c)['clubs']
+        return listOfClubs
 
 
 def loadCompetitions():
     path = os.path.join(BASE_DIR, 'competitions.json')
     with open(path) as comps:
-         listOfCompetitions = json.load(comps)['competitions']
-         return listOfCompetitions
+        listOfCompetitions = json.load(comps)['competitions']
+        return listOfCompetitions
 
 
 app = Flask(__name__)
@@ -26,9 +26,11 @@ app.secret_key = 'something_special'
 competitions = loadCompetitions()
 clubs = loadClubs()
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 def split_competitions(comps):
     now = datetime.now()
@@ -53,7 +55,7 @@ def render_welcome(club):
     )
 
 
-@app.route('/showSummary',methods=['GET','POST'])
+@app.route('/showSummary', methods=['GET', 'POST'])
 def showSummary():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -78,7 +80,7 @@ def showSummary():
 
 
 @app.route('/book/<competition>/<club>')
-def book(competition,club):
+def book(competition, club):
     foundClubs = [c for c in clubs if c['name'] == club]
     foundCompetitions = [c for c in competitions if c['name'] == competition]
     if not foundClubs or not foundCompetitions:
@@ -89,10 +91,10 @@ def book(competition,club):
     if datetime.strptime(foundCompetition['date'], "%Y-%m-%d %H:%M:%S") < datetime.now():
         flash("This competition is already over.")
         return render_welcome(foundClub)
-    return render_template('booking.html',club=foundClub,competition=foundCompetition)
+    return render_template('booking.html', club=foundClub, competition=foundCompetition)
 
 
-@app.route('/purchasePlaces',methods=['POST'])
+@app.route('/purchasePlaces', methods=['POST'])
 def purchasePlaces():
     foundCompetitions = [c for c in competitions if c['name'] == request.form.get('competition')]
     foundClubs = [c for c in clubs if c['name'] == request.form.get('club')]
@@ -119,7 +121,7 @@ def purchasePlaces():
     if placesRequired > int(competition['numberOfPlaces']):
         flash("You cannot book more places than available in the competition.")
         return render_welcome(club)
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+    competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - placesRequired
     club['points'] = int(club['points']) - placesRequired
     session['email'] = club['email']
     flash('Great-booking complete!')
