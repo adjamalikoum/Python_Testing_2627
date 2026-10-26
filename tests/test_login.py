@@ -23,3 +23,20 @@ def test_load_json_files_independent_of_cwd(monkeypatch, tmp_path):
     competitions = server.loadCompetitions()
     assert len(clubs) > 0
     assert len(competitions) > 0
+
+
+def test_logout_clears_session_and_blocks_protected_page(client):
+    with client.session_transaction() as sess:
+        sess['email'] = 'john@simplylift.co'
+
+    response = client.get('/logout')
+    assert response.status_code == 302
+    assert response.headers['Location'] in ('/', 'http://localhost/')
+
+    with client.session_transaction() as sess:
+        assert 'email' not in sess
+
+    # Accessing protected page without session must be blocked
+    get_summary = client.get('/showSummary')
+    assert get_summary.status_code == 302
+    assert get_summary.headers['Location'] in ('/', 'http://localhost/')
