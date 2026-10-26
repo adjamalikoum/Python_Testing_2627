@@ -38,22 +38,28 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
-    foundClub = [c for c in clubs if c['name'] == club][0]
-    foundCompetition = [c for c in competitions if c['name'] == competition][0]
-    if foundClub and foundCompetition:
-        if datetime.strptime(foundCompetition['date'], "%Y-%m-%d %H:%M:%S") < datetime.now():
-            flash("This competition is already over.")
-            return render_template('welcome.html', club=foundClub, competitions=competitions)
-        return render_template('booking.html',club=foundClub,competition=foundCompetition)
-    else:
+    foundClubs = [c for c in clubs if c['name'] == club]
+    foundCompetitions = [c for c in competitions if c['name'] == competition]
+    if not foundClubs or not foundCompetitions:
         flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return redirect(url_for('index'))
+    foundClub = foundClubs[0]
+    foundCompetition = foundCompetitions[0]
+    if datetime.strptime(foundCompetition['date'], "%Y-%m-%d %H:%M:%S") < datetime.now():
+        flash("This competition is already over.")
+        return render_template('welcome.html', club=foundClub, competitions=competitions)
+    return render_template('booking.html',club=foundClub,competition=foundCompetition)
 
 
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
-    competition = [c for c in competitions if c['name'] == request.form['competition']][0]
-    club = [c for c in clubs if c['name'] == request.form['club']][0]
+    foundCompetitions = [c for c in competitions if c['name'] == request.form.get('competition')]
+    foundClubs = [c for c in clubs if c['name'] == request.form.get('club')]
+    if not foundCompetitions or not foundClubs:
+        flash("Something went wrong-please try again")
+        return redirect(url_for('index'))
+    competition = foundCompetitions[0]
+    club = foundClubs[0]
     if datetime.strptime(competition['date'], "%Y-%m-%d %H:%M:%S") < datetime.now():
         flash("Cannot book places for a past competition.")
         return render_template('welcome.html', club=club, competitions=competitions)
