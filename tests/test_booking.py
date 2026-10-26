@@ -120,3 +120,20 @@ def test_book_with_unknown_club_or_competition_does_not_crash(client):
 
     response_unknown_comp = client.get("/book/Unknown Competition/Simply Lift")
     assert response_unknown_comp.status_code in (200, 302)
+
+
+def test_purchase_places_applies_prg(client):
+    client.post("/showSummary", data={"email": "john@simplylift.co"})
+
+    response = client.post(
+        "/purchasePlaces",
+        data={
+            "club": "Simply Lift",
+            "competition": "Future Competition",
+            "places": "1",
+        },
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"] in ("/showSummary", "http://localhost/showSummary")
