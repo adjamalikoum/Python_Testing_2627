@@ -30,6 +30,29 @@ clubs = loadClubs()
 def index():
     return render_template('index.html')
 
+def split_competitions(comps):
+    now = datetime.now()
+    upcoming = []
+    past = []
+    for comp in comps:
+        if datetime.strptime(comp['date'], "%Y-%m-%d %H:%M:%S") >= now:
+            upcoming.append(comp)
+        else:
+            past.append(comp)
+    return upcoming, past
+
+
+def render_welcome(club):
+    upcoming, past = split_competitions(competitions)
+    return render_template(
+        'welcome.html',
+        club=club,
+        upcoming_competitions=upcoming,
+        past_competitions=past,
+        competitions=competitions,
+    )
+
+
 @app.route('/showSummary',methods=['GET','POST'])
 def showSummary():
     if request.method == 'POST':
@@ -40,7 +63,7 @@ def showSummary():
             return redirect(url_for('index'))
         club = matching_clubs[0]
         session['email'] = club['email']
-        return render_template('welcome.html',club=club,competitions=competitions)
+        return render_welcome(club)
 
     email = session.get('email')
     if not email:
@@ -51,7 +74,7 @@ def showSummary():
         flash("Sorry, that email was not found.")
         return redirect(url_for('index'))
     club = matching_clubs[0]
-    return render_template('welcome.html',club=club,competitions=competitions)
+    return render_welcome(club)
 
 
 @app.route('/book/<competition>/<club>')
@@ -65,7 +88,7 @@ def book(competition,club):
     foundCompetition = foundCompetitions[0]
     if datetime.strptime(foundCompetition['date'], "%Y-%m-%d %H:%M:%S") < datetime.now():
         flash("This competition is already over.")
-        return render_template('welcome.html', club=foundClub, competitions=competitions)
+        return render_welcome(foundClub)
     return render_template('booking.html',club=foundClub,competition=foundCompetition)
 
 
@@ -80,22 +103,22 @@ def purchasePlaces():
     club = foundClubs[0]
     if datetime.strptime(competition['date'], "%Y-%m-%d %H:%M:%S") < datetime.now():
         flash("Cannot book places for a past competition.")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return render_welcome(club)
     try:
         placesRequired = int(request.form.get('places', ''))
     except (ValueError, TypeError):
         flash("Invalid number of places.")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return render_welcome(club)
 
     if placesRequired <= 0:
         flash("Number of places must be at least 1.")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return render_welcome(club)
     if placesRequired > 12:
         flash("You cannot book more than 12 places per competition.")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return render_welcome(club)
     if placesRequired > int(competition['numberOfPlaces']):
         flash("You cannot book more places than available in the competition.")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return render_welcome(club)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     club['points'] = int(club['points']) - placesRequired
     session['email'] = club['email']
