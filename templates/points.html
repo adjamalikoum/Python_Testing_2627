@@ -1,29 +1,62 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Club Points | GUDLFT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Club Points Summary</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Club</th>
-                <th>Points</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for club in clubs %}
-            <tr>
-                <td>{{ club['name'] }}</td>
-                <td>{{ club['points'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <p>
-        <a href="/">Back to Home</a>
-    </p>
+    <header class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="brand">
+                <span class="brand-icon">🏋️</span>
+                <span>GUDLFT</span>
+            </a>
+            <div class="nav-actions">
+                <a href="/" class="btn btn-outline" style="color: #ffffff; border-color: rgba(255,255,255,0.3); font-size: 0.825rem; padding: 0.4rem 0.875rem;">Back to Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>Club Points Summary</h1>
+                <p class="card-subtitle">Public leaderboard of registered clubs and their available points.</p>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Club</th>
+                            <th style="text-align: right;">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for club in clubs %}
+                        <tr>
+                            <td><strong>{{ club['name'] }}</strong></td>
+                            <td style="text-align: right;">
+                                <span class="badge badge-points" style="padding: 0.25rem 0.6rem; font-size: 0.85rem;">
+                                    {{ club['points'] }} pts
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <p style="margin-top: 1.5rem;">
+                <a href="/" class="btn btn-outline">Back to Home</a>
+            </p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; GUDLFT - Competition Management System</p>
+    </footer>
 </body>
 </html>
