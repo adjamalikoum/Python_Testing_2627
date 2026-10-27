@@ -1,25 +1,53 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUDLFT Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Welcome to the GUDLFT Registration Portal!</h1>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul>
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    {% endwith %}
-    Please enter your secretary email to continue:
-    <form action="showSummary" method="post">
-        <label for="email">Email:</label>
-        <input type="email" name="email" id=""/>
-        <button type="submit">Enter</button>
-    </form>
+    <header class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="brand">
+                <span class="brand-icon">🏋️</span>
+                <span>GUDLFT</span>
+            </a>
+            <div class="nav-actions">
+                <a href="{{ url_for('points') }}" class="btn btn-outline" style="color: #ffffff; border-color: rgba(255,255,255,0.3); font-size: 0.825rem; padding: 0.4rem 0.875rem;">View Points</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container auth-container">
+        <div class="card">
+            <h1>Welcome to the GUDLFT Registration Portal!</h1>
+            <p>Please enter your secretary email to continue:</p>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash-container">
+                {% for message in messages %}
+                    <li class="flash-item">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            {% endwith %}
+
+            <form action="showSummary" method="post">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" name="email" id="email" class="form-input" placeholder="e.g. john@simplylift.co" required />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Enter</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; GUDLFT - Competition Management System</p>
+    </footer>
 </body>
 </html>
